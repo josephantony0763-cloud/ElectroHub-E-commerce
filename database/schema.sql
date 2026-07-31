@@ -8,31 +8,38 @@ CREATE TABLE users (
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(15),
-    role ENUM('CUSTOMER', 'SELLER', 'ADMIN') NOT NULL
+    role ENUM('CUSTOMER', 'SELLER', 'ADMIN') NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE categories (
     category_id INT PRIMARY KEY AUTO_INCREMENT,
-    category_name VARCHAR(100) NOT NULL
+    category_name VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE products (
     product_id INT PRIMARY KEY AUTO_INCREMENT,
+    seller_id INT NOT NULL,
+    category_id INT NOT NULL,
     name VARCHAR(150) NOT NULL,
     description TEXT,
     brand VARCHAR(100),
     price DECIMAL(10,2) NOT NULL,
     stock INT NOT NULL DEFAULT 0,
     image_url VARCHAR(255),
-    is_active BOOLEAN DEFAULT TRUE,
-    category_id INT NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    CHECK (price >= 0),
     CHECK (stock >= 0),
+
+    FOREIGN KEY (seller_id) REFERENCES users(user_id),
     FOREIGN KEY (category_id) REFERENCES categories(category_id)
 );
 
 CREATE TABLE carts (
     cart_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
+    user_id INT NOT NULL UNIQUE,
+
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
@@ -41,7 +48,11 @@ CREATE TABLE cart_items (
     cart_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT NOT NULL,
+
     CHECK (quantity > 0),
+
+    UNIQUE (cart_id, product_id),
+
     FOREIGN KEY (cart_id) REFERENCES carts(cart_id),
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
@@ -51,8 +62,17 @@ CREATE TABLE orders (
     user_id INT NOT NULL,
     order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     total_amount DECIMAL(10,2) NOT NULL,
-    status ENUM('PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED') DEFAULT 'PENDING',
+    status ENUM(
+        'PENDING',
+        'CONFIRMED',
+        'SHIPPED',
+        'DELIVERED',
+        'CANCELLED'
+    ) DEFAULT 'PENDING',
     shipping_address TEXT NOT NULL,
+
+    CHECK (total_amount >= 0),
+
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
@@ -62,7 +82,12 @@ CREATE TABLE order_items (
     product_id INT NOT NULL,
     quantity INT NOT NULL,
     price DECIMAL(10,2) NOT NULL,
+
+    CHECK (price >= 0),
     CHECK (quantity > 0),
+
+    UNIQUE (order_id, product_id),
+
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
@@ -70,9 +95,19 @@ CREATE TABLE order_items (
 CREATE TABLE payments (
     payment_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL UNIQUE,
-    payment_method VARCHAR(50) NOT NULL,
-    payment_status ENUM('PENDING', 'SUCCESS', 'FAILED') DEFAULT 'PENDING',
+    payment_method ENUM(
+        'UPI',
+        'CARD',
+        'NET_BANKING',
+        'COD'
+    ) NOT NULL,
+    payment_status ENUM(
+        'PENDING',
+        'SUCCESS',
+        'FAILED'
+    ) DEFAULT 'PENDING',
     transaction_id VARCHAR(100),
     payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+
     FOREIGN KEY (order_id) REFERENCES orders(order_id)
 );
