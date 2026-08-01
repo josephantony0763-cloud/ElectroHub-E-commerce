@@ -15,7 +15,9 @@ public class UserService {
         this.userRepository=userRepository;
     }
 
+
     public User registerUser(User user) {
+        System.out.println("isActive before save = " + user.getIsActive());
 
         Optional<User> existingUser =
                 userRepository.findByEmail(user.getEmail());
@@ -23,6 +25,7 @@ public class UserService {
         if (existingUser.isPresent()) {
             throw new IllegalArgumentException("Account already exist");
         }
+        user.setIsActive(true);
         return userRepository.save(user);
     }
 
