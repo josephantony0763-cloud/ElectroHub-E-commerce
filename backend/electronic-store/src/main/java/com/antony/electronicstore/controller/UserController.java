@@ -1,12 +1,12 @@
 package com.antony.electronicstore.controller;
 
+import com.antony.electronicstore.dto.request.RegisterRequest;
+import com.antony.electronicstore.dto.response.RegisterResponse;
 import com.antony.electronicstore.entity.User;
 import com.antony.electronicstore.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,8 +19,9 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User register(@Valid @RequestBody User user){
-        return userService.registerUser(user);
+    @ResponseStatus(HttpStatus.CREATED)
+    public RegisterResponse register(@Valid @RequestBody RegisterRequest request){
+        return userService.registerUser(request);
     }
 
 }
