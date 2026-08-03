@@ -1,6 +1,8 @@
 package com.antony.electronicstore.service;
 
+import com.antony.electronicstore.dto.request.LoginRequest;
 import com.antony.electronicstore.dto.request.RegisterRequest;
+import com.antony.electronicstore.dto.response.LoginResponse;
 import com.antony.electronicstore.dto.response.RegisterResponse;
 import com.antony.electronicstore.entity.User;
 import com.antony.electronicstore.entity.enums.Role;
@@ -23,7 +25,7 @@ public class UserService {
     }
 
 
-    public RegisterResponse registerUser(RegisterRequest request) {
+    public RegisterResponse register(RegisterRequest request) {
 
         Optional<User> existingUser=userRepository.findByEmail(request.getEmail());
 
@@ -49,6 +51,27 @@ public class UserService {
          response.setEmail(savedUser.getEmail());
 
          return response;
+    }
+
+    public LoginResponse login(LoginRequest request){
+
+        Optional<User> existingUser=userRepository.findByEmail(request.getEmail());
+
+        if(existingUser.isEmpty()){
+            throw new IllegalArgumentException("Email or password incorrect");
+        }
+
+        User user=existingUser.get();
+        if(!passwordEncoder.matches(request.getPassword(),user.getPassword())){
+            throw new IllegalArgumentException("Email or password incorrect");
+        }
+
+        LoginResponse response=LoginResponse.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .build();
+        return response;
     }
 
 }

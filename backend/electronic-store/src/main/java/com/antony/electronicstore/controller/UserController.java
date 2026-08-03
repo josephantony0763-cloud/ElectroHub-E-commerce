@@ -1,6 +1,8 @@
 package com.antony.electronicstore.controller;
 
+import com.antony.electronicstore.dto.request.LoginRequest;
 import com.antony.electronicstore.dto.request.RegisterRequest;
+import com.antony.electronicstore.dto.response.LoginResponse;
 import com.antony.electronicstore.dto.response.RegisterResponse;
 import com.antony.electronicstore.entity.User;
 import com.antony.electronicstore.service.UserService;
@@ -21,7 +23,14 @@ public class UserController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterResponse register(@Valid @RequestBody RegisterRequest request){
-        return userService.registerUser(request);
+        return userService.register(request);
+    }
+
+
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public LoginResponse login(@Valid @RequestBody LoginRequest request){
+        return userService.login(request);
     }
 
 }
