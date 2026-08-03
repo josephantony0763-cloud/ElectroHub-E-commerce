@@ -5,6 +5,7 @@ import com.antony.electronicstore.dto.response.RegisterResponse;
 import com.antony.electronicstore.entity.User;
 import com.antony.electronicstore.entity.enums.Role;
 import com.antony.electronicstore.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
@@ -14,9 +15,11 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public  UserService(UserRepository userRepository){
+    public  UserService(UserRepository userRepository,BCryptPasswordEncoder passwordEncoder){
         this.userRepository=userRepository;
+        this.passwordEncoder=passwordEncoder;
     }
 
 
@@ -32,7 +35,7 @@ public class UserService {
 
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setPhone(request.getPhone());
         user.setRole(Role.CUSTOMER);
         user.setIsActive(true);
