@@ -25,6 +25,10 @@ public class UserController {
     public RegisterResponse register(@Valid @RequestBody RegisterRequest request){
         return userService.register(request);
     }
+    @GetMapping("/profile")
+    public String profile() {
+        return "Authenticated user can access this endpoint";
+    }
 
 
     @PostMapping("/login")

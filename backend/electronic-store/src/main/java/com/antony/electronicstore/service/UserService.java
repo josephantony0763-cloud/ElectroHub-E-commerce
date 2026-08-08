@@ -8,6 +8,7 @@ import com.antony.electronicstore.entity.User;
 import com.antony.electronicstore.entity.enums.Role;
 import com.antony.electronicstore.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
@@ -17,11 +18,13 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public  UserService(UserRepository userRepository,BCryptPasswordEncoder passwordEncoder){
+    public  UserService(UserRepository userRepository,PasswordEncoder passwordEncoder,JwtService jwtService){
         this.userRepository=userRepository;
         this.passwordEncoder=passwordEncoder;
+        this.jwtService=jwtService;
     }
 
 
@@ -66,10 +69,12 @@ public class UserService {
             throw new IllegalArgumentException("Email or password incorrect");
         }
 
+        String token = jwtService.generateToken(user);
         LoginResponse response=LoginResponse.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
                 .name(user.getName())
+                .token(token)
                 .build();
         return response;
     }
